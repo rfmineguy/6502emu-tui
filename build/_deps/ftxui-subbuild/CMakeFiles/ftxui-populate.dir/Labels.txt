@@ -1,0 +1,14 @@
+# Target labels
+ ftxui-populate
+# Source files and their labels
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/CMakeFiles/ftxui-populate-complete.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-build.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-configure.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-download.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-install.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-mkdir.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-patch.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-test.rule
+/Users/rileyfischer/Documents/dev/cpu_emulators/6502emu_tui/build/_deps/ftxui-subbuild/ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-update.rule
