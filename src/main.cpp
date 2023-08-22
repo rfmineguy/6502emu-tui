@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <sstream>
 #include <cstring>
+#include "TextComponent.hpp"
+#include "ScrollPane.hpp"
 
 int main(int argc, char** argv) {
   using namespace ftxui;
@@ -83,49 +85,68 @@ int main(int argc, char** argv) {
   // ========================================================
   //  Pane that displays the currently loaded code
   // ========================================================
+  auto MyTransform = [&](EntryState params) {
+    auto element = text(params.label);
+    if (params.active) {
+      element |= bold;
+    }
+    if (params.focused) {
+      element |= inverted;
+    }
+    return element;
+  };
+
   constexpr int MEM_SIZE = 0xffff;
-  std::vector<Element> disassembly;
-  std::vector<Element> addresses;
+  std::vector<instruction_t> disassembly;
   auto sc_disassembly = Container::Vertical({});
   auto style = ButtonOption::Animated(Color::Default, Color::GrayDark,
                                       Color::Default, Color::White);
+  // ========================================================
+  // Disassembly section
+  // ========================================================
+  {
+  style.transform = MyTransform;
 
-  char prev_buffer[255], curr_buffer[255];
   int byte_size;
   for (int i = 0; i < MEM_SIZE;) {
-    std::stringstream instruction, address;
-    int is_valid = cpu_get_str_rep(i, &cpu, curr_buffer, 255, &byte_size);
-    // instruction << std::setbase(16) << std::showbase << i << "    " << curr_buffer;
-    instruction << curr_buffer;
-    address     << " " << std::setbase(16) << std::showbase << i;
-    disassembly.push_back(text({instruction.str()}));
-    addresses.push_back(text({address.str()}));
+    // std::stringstream instruction, address;
+    // int is_valid = cpu_get_str_rep(i, &cpu, curr_buffer, 255, &byte_size);
+    // instruction << curr_buffer;
+    // disassembly.push_back(instruction.str());
+    instruction_t ins = cpu_get_instruction(i, &cpu);
+    disassembly.push_back(ins);
+    std::cout << ins.address << "  " << ins.str << std::endl;
 
-    if (strcmp(curr_buffer, prev_buffer) != 0) {
-      sc_disassembly->Add(Button(instruction.str(), [&] {}, style));
-      sc_addresses->Add();
+    if (ins.bytes == 0) {
+      i ++;
     }
+    else {
+      i+=ins.bytes;
+    }
+    // if (is_valid && strcmp(curr_buffer, prev_buffer) != 0) {
+    //   sc_disassembly->Add(Button(instruction.str(), [&] {}, style));
+    //   sc_addresses->Add(Text(address.str()));
+    //   i += byte_size;
+    // }
+    // else {
+    //   i++;
+    // }
     // breakpoints.push_back(text(
-    i += byte_size;
-    strcpy(prev_buffer, curr_buffer);
+    // i += byte_size;
   }
+  std::cout << "Finished disassembly" << std::endl;
+  }
+
+  auto scrollpane = ScrollPane(disassembly);
 
   std::cout << disassembly.size() << std::endl;
   auto code_window = Container::Vertical({});
   {
-  // for (int i = 0; i < disassembly.size(); i++) {
-  //   sc_disassembly->Add(disassembly.at(i));
-  // }
-
-  auto code_window_renderer = Renderer(sc_disassembly, [&]() {
+  auto code_window_renderer = Renderer(scrollpane, [&]() {
     auto element = vbox({
       text("Code"),
       separator(),
-      hbox({
-        vbox({
-          sc_disassembly->Render() | xflex | vscroll_indicator | frame,
-        })
-      }) | yframe | focus,
+      scrollpane->Render() | xflex,
     });
     return element;
   });

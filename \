@@ -1,0 +1,78 @@
+#include "ScrollPane.hpp"
+#include <iostream>
+#include <algorithm>
+
+namespace ftxui {
+  Component ScrollPane(const std::vector<std::string>& lines) {
+    return Make<ScrollPaneBase>(lines);
+  }
+  
+  ScrollPaneBase::ScrollPaneBase(const std::vector<std::string>& lines): m_lines(lines) {
+    // start the m_displayed_lines with 0x00 - 0xff lines
+    // std::fill(m_displayed_lines.begin(), m_displayed_lines.end(), Text("test"));
+  }
+  
+  Element ScrollPaneBase::Render() {
+    const bool active = Active();
+    const bool focused = Focused();
+    const bool focused_or_hover = focused || mouse_hover_;
+  
+    auto focus_management = focused ? focus : active ? select : nothing;
+
+    const EntryState state = {
+        "",
+        false,
+        active,
+        focused_or_hover,
+    };
+
+    auto lines_renderer = Renderer([&] {
+      int height = box_.y_max - box_.y_min - 2;
+      for (int i = 0; i < m_displayed_lines.size(); i++) {
+        std::string line = "";
+        try {
+          m_displayed_lines.at(i) = text({ m_lines.at(i + m_scroll_line )});
+        } catch (std::out_of_range const& exc) {
+          std::cout << exc.what() << std::endl;
+        }
+      }
+      return vbox(std::vector<Element>(m_displayed_lines.begin(), m_displayed_lines.end()));
+    });
+
+    auto element = vbox({
+      text("ScrollPane : " + std::to_string(m_scroll_line)),
+      text("Hover      : " + std::to_string(mouse_hover_)),
+      text("Height     : " + std::to_string(box_.y_max - box_.y_min)),
+      text("width      : " + std::to_string(box_.x_max - box_.x_min)),
+      text("lines      : " + std::to_string(m_lines.size())),
+      separator(),
+      lines_renderer->Render()
+    }) | focus_management;
+
+    return element | flex | reflect(box_);
+  }
+  
+  bool ScrollPaneBase::OnEvent(Event event) {
+    if (event.is_mouse()) {
+      mouse_hover_ = box_.Contain(event.mouse().x, event.mouse().y) && CaptureMouse(event);
+      if (!mouse_hover_) {
+        return false;
+      }
+      if (event.mouse().button == Mouse::WheelUp) {
+        m_scroll_line ++;
+        return true;
+      }
+      if (event.mouse().button == Mouse::WheelDown) {
+        m_scroll_line --;
+        if (m_scroll_line < 0) {
+          m_scroll_line = 0;
+        }
+        if (m_scroll_line > 0xffff) {
+          m_scroll_line = 0xffff;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+}
