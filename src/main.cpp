@@ -7,6 +7,7 @@
 #include <ftxui/dom/flexbox_config.hpp>
 #include <6502emu/cpu.h>
 #include <6502emu/args.h>
+#include <6502emu/dbginfo.h>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -14,19 +15,31 @@
 #include "TextComponent.hpp"
 #include "ScrollPane.hpp"
 
+typedef void (*cc65_errorfunc) (const cc65_parseerror*);
+
+void cc65_err_callback(const cc65_parseerror* err) {
+  std::cerr << "cc65_err_callback" << std::endl;
+}
+
 int main(int argc, char** argv) {
   using namespace ftxui;
   cpu_t cpu;
 
   args_t args = args_parse(argc, argv);
   if (!args.input_file) {
-    std::cerr << "Failed to open file " << std::endl;
+    std::cerr << "Failed to open binary file " << std::endl;
+    return 0;
+  }
+  if (!args.dbg_file) {
+    std::cerr << "Failed to open debug file" << std::endl;
     return 0;
   }
   if (!cpu_load_program(args.input_file, &cpu)) {
     std::cerr << "Failed to load program" << std::endl;
     return 0;
   }
+
+  cc65_dbginfo dbg = cc65_read_dbginfo(args.dbg_file, &cc65_err_callback);
   
   // ========================================================
   //  Screen that renders the tui interface
@@ -115,7 +128,7 @@ int main(int argc, char** argv) {
     // disassembly.push_back(instruction.str());
     instruction_t ins = cpu_get_instruction(i, &cpu);
     disassembly.push_back(ins);
-    std::cout << ins.address << "  " << ins.str << std::endl;
+    // std::cout << ins.address << "  " << ins.str << std::endl;
 
     if (ins.bytes == 0) {
       i ++;
@@ -137,7 +150,7 @@ int main(int argc, char** argv) {
   std::cout << "Finished disassembly" << std::endl;
   }
 
-  auto scrollpane = ScrollPane(disassembly);
+  auto scrollpane = ScrollPane(disassembly, dbg);
 
   std::cout << disassembly.size() << std::endl;
   auto code_window = Container::Vertical({});

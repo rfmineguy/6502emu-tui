@@ -6,13 +6,14 @@
 #include <array>
 #include "TextComponent.hpp"
 #include <6502emu/cpu.h>
+#include <6502emu/dbginfo.h>
 
 namespace ftxui {
-  Component ScrollPane(const std::vector<instruction_t>&);
+  Component ScrollPane(const std::vector<instruction_t>&, cc65_dbginfo);
 
 class ScrollPaneBase : public ComponentBase {
   public:
-    ScrollPaneBase(const std::vector<instruction_t>& lines);
+    ScrollPaneBase(const std::vector<instruction_t>& lines, cc65_dbginfo);
 
     Element Render() override;
     bool OnEvent(Event event) override;
@@ -24,6 +25,7 @@ class ScrollPaneBase : public ComponentBase {
     std::array<Element, 0xff> m_displayed_lines;
 
   private:
+    cc65_dbginfo m_dbg;
     bool mouse_hover_;
     Box box_;
 };

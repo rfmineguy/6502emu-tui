@@ -6,11 +6,11 @@
 #include <6502emu/cpu.h>
 
 namespace ftxui {
-  Component ScrollPane(const std::vector<instruction_t>& lines) {
-    return Make<ScrollPaneBase>(lines);
+  Component ScrollPane(const std::vector<instruction_t>& lines, cc65_dbginfo dbg) {
+    return Make<ScrollPaneBase>(lines, dbg);
   }
   
-  ScrollPaneBase::ScrollPaneBase(const std::vector<instruction_t>& lines): m_lines(lines), m_scroll_delta(30), m_scroll_line(0) {}
+  ScrollPaneBase::ScrollPaneBase(const std::vector<instruction_t>& lines, cc65_dbginfo dbg): m_lines(lines), m_scroll_delta(30), m_scroll_line(0), m_dbg(dbg) {}
   
   Element ScrollPaneBase::Render() {
     const bool active = Active();
