@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
   };
 
   constexpr int MEM_SIZE = 0xffff;
-  std::vector<instruction_t> disassembly;
+  std::unordered_map<uint16_t, instruction_t> disassembly;
   auto sc_disassembly = Container::Vertical({});
   auto style = ButtonOption::Animated(Color::Default, Color::GrayDark,
                                       Color::Default, Color::White);
@@ -122,13 +122,8 @@ int main(int argc, char** argv) {
 
   int byte_size;
   for (int i = 0; i < MEM_SIZE;) {
-    // std::stringstream instruction, address;
-    // int is_valid = cpu_get_str_rep(i, &cpu, curr_buffer, 255, &byte_size);
-    // instruction << curr_buffer;
-    // disassembly.push_back(instruction.str());
     instruction_t ins = cpu_get_instruction(i, &cpu);
-    disassembly.push_back(ins);
-    // std::cout << ins.address << "  " << ins.str << std::endl;
+    disassembly.emplace(ins.address, ins);
 
     if (ins.bytes == 0) {
       i ++;
@@ -136,16 +131,6 @@ int main(int argc, char** argv) {
     else {
       i+=ins.bytes;
     }
-    // if (is_valid && strcmp(curr_buffer, prev_buffer) != 0) {
-    //   sc_disassembly->Add(Button(instruction.str(), [&] {}, style));
-    //   sc_addresses->Add(Text(address.str()));
-    //   i += byte_size;
-    // }
-    // else {
-    //   i++;
-    // }
-    // breakpoints.push_back(text(
-    // i += byte_size;
   }
   std::cout << "Finished disassembly" << std::endl;
   }
