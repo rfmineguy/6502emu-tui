@@ -23,7 +23,6 @@ class ScrollPaneBase : public ComponentBase {
     int scroll_delta_selection_index;
     int m_scroll_addr, m_scroll_delta;
     std::unordered_map<uint16_t, instruction_t> m_lines;
-    // std::vector<instruction_t> m_lines;
     std::array<Element, 0xff> m_displayed_lines;
     std::array<instruction_t, 0xff> m_displayed_instructions;
 

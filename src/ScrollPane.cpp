@@ -59,6 +59,7 @@ namespace ftxui {
             j++;
           }
         }
+        m_displayed_lines.at(line) = text({"============"});
       }
 
       return vbox(std::vector<Element>(m_displayed_lines.begin(), m_displayed_lines.end()));
@@ -103,7 +104,7 @@ namespace ftxui {
         int line_height = m_box.y_max - m_box.y_min;
         if (m_last_click_y >= 2 && m_last_click_y <= line_height - 2) {
           // Make sure we clicked inside the box
-          instruction_t ins = m_displayed_instructions.at(m_last_click_y - 2);
+          instruction_t ins = m_displayed_instructions.at(m_last_click_y);
           m_lines.at(ins.address).is_bp = !m_lines.at(ins.address).is_bp;
         }
       }

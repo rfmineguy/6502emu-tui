@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -ggdb")
 project(6502emu_tui LANGUAGES C CXX)
 project(6502emu_tui_testing LANGUAGES C CXX)
 
@@ -20,7 +20,7 @@ FetchContent_MakeAvailable(6502lib)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git GIT_TAG 10.1.0)
 FetchContent_MakeAvailable(fmt)
 
-add_executable(6502emu_tui src/main.cpp src/TextComponent.cpp src/ScrollPane.cpp)
+add_executable(6502emu_tui src/main.cpp src/TextComponent.cpp src/ScrollPane.cpp src/TUI_Util.cpp)
 target_include_directories(6502emu_tui PRIVATE src ${6502lib_SOURCE_DIR}/include)
 
 target_link_libraries(6502emu_tui
