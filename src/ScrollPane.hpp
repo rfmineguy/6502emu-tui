@@ -25,6 +25,7 @@ class ScrollPaneBase : public ComponentBase {
     std::unordered_map<uint16_t, instruction_t> m_lines;
     // std::vector<instruction_t> m_lines;
     std::array<Element, 0xff> m_displayed_lines;
+    std::array<instruction_t, 0xff> m_displayed_instructions;
 
   private:
     cc65_dbginfo m_dbg;

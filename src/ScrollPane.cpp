@@ -26,11 +26,6 @@ namespace ftxui {
 
     auto lines_renderer = Renderer([&] {
       const cc65_segmentinfo* segment_info = cc65_get_segmentlist(m_dbg);
-      // for (int i = 0; i < segment_info->count; i++) {
-      //   cc65_segmentdata seg = segment_info->data[i];
-      //   cc65_addr start = seg.segment_start;
-      //   cc65_size size = seg.segment_size;
-      // }
 
       /* Ouput  (Example)
        * =====
@@ -47,21 +42,21 @@ namespace ftxui {
       int line_height = m_box.y_max - m_box.y_min;
       for (int i = 0; i < segment_info->count; i++) {
         cc65_segmentdata seg = segment_info->data[i];
-        if (line > m_box.y_max - m_box.y_min)                       break; // if the current line is passed the end of the frame, ignore it
+        if (line > m_box.y_max - m_box.y_min)                     break; // if the current line is passed the end of the frame, ignore it
         if (m_scroll_addr + 0x20 < seg.segment_start)             break; // if none of the segment memory is in range
         if (m_scroll_addr > seg.segment_start + seg.segment_size) break; // if we've scrolled completely passed it, ignore it
     
         int start_addr = m_scroll_addr;
-        int end_addr   = m_scroll_addr + 0x20;
-        for (int j = start_addr; j < end_addr; j++) {
+        int end_addr   = m_scroll_addr + 0xff;
+        for (int j = start_addr; j < end_addr;) {
           try {
             instruction_t ins = m_lines.at(j);
-            m_displayed_lines.at(line) = text(fmt::format(" {:x}  {}", ins.address, ins.str));
+            m_displayed_lines.at(line) = text(fmt::format("{} {:x}  {}", ins.is_bp ? "•" : " ", ins.address, ins.str));
+            m_displayed_instructions.at(line) = ins;
             j += ins.bytes;
             line++;
           } catch (std::out_of_range e) {
-            // m_displayed_lines.at(line) = text(" INVALID INSTRUCTION ..........");
-            // line++;
+            j++;
           }
         }
       }
@@ -71,22 +66,14 @@ namespace ftxui {
 
     auto element = vbox({
       hbox({
-        vbox({
         text("ScrollAddr     : " + fmt::format("{:x}", m_scroll_addr)),
-        text("Hover          : " + std::to_string(m_mouse_hover)),
-        text("Width          : " + std::to_string(m_box.x_max - m_box.x_min)),
-        }),
-        vbox({
-        text("Height         : " + std::to_string(m_box.y_max - m_box.y_min)),
-        text("m_last_click_x : " + fmt::format("{:x}", m_last_click_x)),
         text("m_last_click_y : " + fmt::format("{:x}", m_last_click_y)),
-        })
-      }) | flex_grow,
+      }),
       separator(),
       lines_renderer->Render()
     }) | focus_management;
 
-    return element | flex | reflect(m_box);
+    return element | reflect(m_box);
   }
   
   bool ScrollPaneBase::OnEvent(Event event) {
@@ -109,9 +96,16 @@ namespace ftxui {
         }
         return true;
       }
-      if (event.mouse().button == Mouse::Left) {
-        m_last_click_x = event.mouse().x;
-        m_last_click_y = event.mouse().y;
+      if (event.mouse().button == Mouse::Left && event.mouse().motion == Mouse::Pressed) {
+        m_last_click_x = m_box.x_min - event.mouse().x;
+        m_last_click_y = event.mouse().y - m_box.y_min;
+
+        int line_height = m_box.y_max - m_box.y_min;
+        if (m_last_click_y >= 2 && m_last_click_y <= line_height - 2) {
+          // Make sure we clicked inside the box
+          instruction_t ins = m_displayed_instructions.at(m_last_click_y - 2);
+          m_lines.at(ins.address).is_bp = !m_lines.at(ins.address).is_bp;
+        }
       }
     }
     return false;
